@@ -1,6 +1,9 @@
 import { Button, Divider, Grid, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 export const Home = () => {
+  const navigate = useNavigate();
+
   return (
     <Grid
       container
@@ -33,14 +36,22 @@ export const Home = () => {
         justifyContent="center"
         padding="20px"
       >
-        <Button variant="outlined" size="large">
+        <Button
+          variant="outlined"
+          size="large"
+          onClick={() => navigate("/login")}
+        >
           Login
         </Button>
         <Divider
           orientation="vertical"
           sx={{ marginLeft: "10px", marginRight: "10px" }}
         />
-        <Button variant="outlined" size="large">
+        <Button
+          variant="outlined"
+          size="large"
+          onClick={() => navigate("/register")}
+        >
           Register
         </Button>
       </Grid>
