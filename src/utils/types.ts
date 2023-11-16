@@ -5,3 +5,5 @@ export type RouteData = {
   element: any;
   type: "public" | "protected";
 };
+
+export type ProgressState = "IDLE" | "IN_PROGRESS" | "SUCCESS" | "FAILED";
