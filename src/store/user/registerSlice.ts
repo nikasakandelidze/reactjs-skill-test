@@ -1,8 +1,9 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { Client } from "../../model";
-import { ProgressState } from "../../utils/types";
-import axios from "axios";
+import { HttpResponseError, ProgressState } from "../../utils/types";
+import axios, { AxiosError } from "axios";
 import { API_URL } from "../../utils/constants";
+import { getSingleErrorMessage } from "../../utils";
 
 export interface RegisterState {
   data: Client | null;
@@ -22,6 +23,7 @@ export interface RegisterData {
   email: string;
   password: string;
   avatar?: string;
+  photos?: any[];
 }
 
 export const register = createAsyncThunk(
@@ -29,14 +31,18 @@ export const register = createAsyncThunk(
   async (register: RegisterData, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${API_URL}/api/register`, {
-        register,
+        ...register,
       });
       const data: Client = response.data;
-      console.log(data);
       return data;
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
-      //   rejectWithValue()
+      const error = err as AxiosError<HttpResponseError>;
+      const message = getSingleErrorMessage(
+        error.response?.data,
+        "Failed to login user, try again later",
+      );
+      return rejectWithValue({ message });
     }
   },
 );
@@ -44,7 +50,13 @@ export const register = createAsyncThunk(
 export const registerSlice = createSlice({
   name: "register",
   initialState,
-  reducers: {},
+  reducers: {
+    resetRegisterState: (state: RegisterState) => {
+      state.loading = "IDLE";
+      state.data = null;
+      state.error = null;
+    },
+  },
   extraReducers: (builder: any) => {
     builder
       .addCase(register.pending, (state: RegisterState) => {
@@ -60,9 +72,11 @@ export const registerSlice = createSlice({
       .addCase(register.rejected, (state: RegisterState, action: any) => {
         state.loading = "FAILED";
         state.error =
-          action.error.message || "Failed to register user, try again later";
+          action.payload.message || "Failed to register user, try again later";
       });
   },
 });
+
+export const { resetRegisterState } = registerSlice.actions;
 
 export default registerSlice.reducer;

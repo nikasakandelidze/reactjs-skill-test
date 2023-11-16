@@ -1,6 +1,16 @@
-import { Button, Grid, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useRegister } from "../../hooks/useRegister";
+import { useEffect } from "react";
+import { useSnackbar } from "notistack";
 
 interface IFormInput {
   firstName: string;
@@ -18,10 +28,28 @@ export const Register = () => {
     formState: { errors },
   } = useForm<IFormInput>();
 
+  const { enqueueSnackbar } = useSnackbar();
+
+  const { handleRegister, loading, error, resetRegister } = useRegister();
+
   const onSubmit: SubmitHandler<IFormInput> = (data) => {
-    console.log(data);
-    // Here, you can handle the registration logic (e.g., sending data to a server)
+    handleRegister(data);
   };
+
+  useEffect(() => {
+    if (loading === "FAILED") {
+      enqueueSnackbar({ message: error, variant: "error" });
+      resetRegister();
+    }
+    if (loading === "SUCCESS") {
+      enqueueSnackbar({
+        message: "Successfully registered",
+        variant: "success",
+      });
+      resetRegister();
+      navigate("/login");
+    }
+  }, [loading, enqueueSnackbar, resetRegister, error]);
 
   return (
     <Grid
@@ -118,28 +146,35 @@ export const Register = () => {
           error={!!errors.password}
           helperText={errors.password?.message}
         />
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          sx={{ mt: 3, mb: 2 }}
-        >
-          Register
-        </Button>
-        <Typography
-          variant="subtitle2"
-          sx={{
-            textDecoration: "underline",
-            cursor: "pointer",
-            "&:hover": { color: (theme) => theme.palette.primary.main },
-          }}
-          onClick={() => {
-            // Here, you can navigate to the login page
-            navigate("/login");
-          }}
-        >
-          Already have an account? Login
-        </Typography>
+        <Box>
+          {loading === "IN_PROGRESS" ? (
+            <CircularProgress />
+          ) : (
+            <>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+              >
+                Register
+              </Button>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                  "&:hover": { color: (theme) => theme.palette.primary.main },
+                }}
+                onClick={() => {
+                  navigate("/login");
+                }}
+              >
+                Already have an account? Login
+              </Typography>{" "}
+            </>
+          )}
+        </Box>
       </Grid>
     </Grid>
   );

@@ -1,8 +1,9 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { AuthState, Client } from "../../model";
-import { ProgressState } from "../../utils/types";
+import { AuthState } from "../../model";
+import { HttpResponseError, ProgressState } from "../../utils/types";
 import { API_URL } from "../../utils/constants";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import { getSingleErrorMessage } from "../../utils";
 
 export interface LoginState {
   data: AuthState | null;
@@ -25,13 +26,17 @@ export const login = createAsyncThunk(
   "auth/login",
   async (login: LoginData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_URL}/api/login`, { login });
+      const response = await axios.post(`${API_URL}/api/login`, { ...login });
       const data: AuthState = response.data;
       console.log(data.token);
       return data;
-    } catch (err) {
-      console.log(err);
-      //   rejectWithValue()
+    } catch (err: any) {
+      const error = err as AxiosError<HttpResponseError>;
+      const message = getSingleErrorMessage(
+        error.response?.data,
+        "Failed to login user, try again later",
+      );
+      return rejectWithValue({ message });
     }
   },
 );
@@ -39,7 +44,13 @@ export const login = createAsyncThunk(
 export const loginSlice = createSlice({
   name: "register",
   initialState,
-  reducers: {},
+  reducers: {
+    resetLoginState: (state: LoginState) => {
+      state.loading = "IDLE";
+      state.data = null;
+      state.error = null;
+    },
+  },
   extraReducers: (builder: any) => {
     builder
       .addCase(login.pending, (state: LoginState) => {
@@ -55,9 +66,11 @@ export const loginSlice = createSlice({
       .addCase(login.rejected, (state: LoginState, action: any) => {
         state.loading = "FAILED";
         state.error =
-          action.error.message || "Failed to login user, try again later";
+          action.payload.message || "Failed to login user, try again later";
       });
   },
 });
+
+export const { resetLoginState } = loginSlice.actions;
 
 export default loginSlice.reducer;

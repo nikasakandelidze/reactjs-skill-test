@@ -5,9 +5,9 @@ import registerSlice from "./user/registerSlice";
 
 export const store = configureStore({
   reducer: {
-    userStore: userSlice,
-    loginStore: loginSlice,
-    registerSlice: registerSlice,
+    user: userSlice,
+    login: loginSlice,
+    register: registerSlice,
   },
 });
 

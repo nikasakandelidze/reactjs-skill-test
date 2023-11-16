@@ -1,6 +1,16 @@
-import { Button, Grid, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useLogin } from "../../hooks/useLogin";
+import { useEffect } from "react";
+import { useSnackbar } from "notistack";
 
 interface IFormInput {
   email: string;
@@ -10,16 +20,31 @@ interface IFormInput {
 export const Login = () => {
   const navigate = useNavigate();
 
+  const { error, loading, handleLogin, resetLogin } = useLogin();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<IFormInput>();
 
+  const { enqueueSnackbar } = useSnackbar();
+
   const onSubmit: SubmitHandler<IFormInput> = (data) => {
-    console.log(data);
-    // Here, you can handle the registration logic (e.g., sending data to a server)
+    handleLogin(data);
   };
+
+  useEffect(() => {
+    if (loading === "FAILED") {
+      enqueueSnackbar({ message: error, variant: "error" });
+      resetLogin();
+    }
+    if (loading === "SUCCESS") {
+      enqueueSnackbar({ message: "Login successful!", variant: "success" });
+      navigate("/profile");
+      resetLogin();
+    }
+  }, [loading, enqueueSnackbar, resetLogin, error, navigate]);
 
   return (
     <Grid
@@ -32,9 +57,9 @@ export const Login = () => {
       rowSpacing={3}
     >
       <Grid item xs={8}>
-        <Typography variant="h4">Register new account</Typography>
+        <Typography variant="h4">Login using existing account</Typography>
         <Typography variant="subtitle1" fontWeight="100">
-          Please input all the necessary information and register to continue
+          Login to access user page and see your profile details
         </Typography>
       </Grid>
       <Grid item xs={8}>
@@ -61,44 +86,39 @@ export const Login = () => {
           autoComplete="current-password"
           {...register("password", {
             required: "Password is required",
-            minLength: {
-              value: 6,
-              message: "Password must be at least 6 characters",
-            },
-            maxLength: {
-              value: 50,
-              message: "Password must be no more than 50 characters",
-            },
-            pattern: {
-              value: /.*[0-9].*/,
-              message: "Password must contain at least one number",
-            },
           })}
           error={!!errors.password}
           helperText={errors.password?.message}
         />
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          sx={{ mt: 3, mb: 2 }}
-        >
-          Login
-        </Button>
-        <Typography
-          variant="subtitle2"
-          sx={{
-            textDecoration: "underline",
-            cursor: "pointer",
-            "&:hover": { color: (theme) => theme.palette.primary.main },
-          }}
-          onClick={() => {
-            // Here, you can navigate to the login page
-            navigate("/register");
-          }}
-        >
-          Don't have an account? Register
-        </Typography>
+        <Box>
+          {loading === "IN_PROGRESS" ? (
+            <CircularProgress size={30} />
+          ) : (
+            <>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+              >
+                Login
+              </Button>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                  "&:hover": { color: (theme) => theme.palette.primary.main },
+                }}
+                onClick={() => {
+                  navigate("/register");
+                }}
+              >
+                Don't have an account? Register
+              </Typography>
+            </>
+          )}
+        </Box>
       </Grid>
     </Grid>
   );
