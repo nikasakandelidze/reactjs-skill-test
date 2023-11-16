@@ -1,7 +1,26 @@
-import { Grid } from "@mui/material";
+import { Avatar, Grid, Typography } from "@mui/material";
 import { useUserInfo } from "../../hooks/useUserInfo";
 
 export const Profile = () => {
   const { data } = useUserInfo();
-  return <Grid container>{data?.firstName}</Grid>;
+  return (
+    <Grid container>
+      <Grid
+        item
+        xs={12}
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Avatar
+          alt={data?.firstName}
+          src={data?.avatar}
+          sx={{ width: "100px", height: "100px" }}
+        />
+        <Typography variant="h4">{data?.firstName}</Typography>
+        <Typography variant="h4">{data?.email}</Typography>
+      </Grid>
+    </Grid>
+  );
 };

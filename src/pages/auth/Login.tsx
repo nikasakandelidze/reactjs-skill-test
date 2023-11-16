@@ -42,7 +42,6 @@ export const Login = () => {
     if (loading === "SUCCESS") {
       enqueueSnackbar({ message: "Login successful!", variant: "success" });
       navigate("/profile");
-      resetLogin();
     }
   }, [loading, enqueueSnackbar, resetLogin, error, navigate]);
 
