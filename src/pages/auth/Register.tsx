@@ -11,12 +11,14 @@ import { useNavigate } from "react-router-dom";
 import { useRegister } from "../../hooks/useRegister";
 import { useEffect } from "react";
 import { useSnackbar } from "notistack";
+import { RegisterData } from "../../store/user/registerSlice";
 
 interface IFormInput {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
+  photos: FileList | null;
 }
 
 export const Register = () => {
@@ -33,7 +35,21 @@ export const Register = () => {
   const { handleRegister, loading, error, resetRegister } = useRegister();
 
   const onSubmit: SubmitHandler<IFormInput> = (data) => {
-    handleRegister(data);
+    const formData = new FormData();
+    console.log(data);
+    // Append text fields
+    formData.append("firstName", data.firstName);
+    formData.append("lastName", data.lastName);
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+
+    if (data.photos) {
+      Array.from(data.photos).forEach((file, index) =>
+        formData.append(`photos`, file),
+      );
+    }
+    console.log(formData);
+    handleRegister(formData);
   };
 
   useEffect(() => {
@@ -146,6 +162,26 @@ export const Register = () => {
           error={!!errors.password}
           helperText={errors.password?.message}
         />
+        <TextField
+          margin="normal"
+          fullWidth
+          type="file"
+          inputProps={{
+            accept: "image/*",
+            multiple: true, // Allow multiple file uploads
+          }}
+          {...register("photos", {
+            required: "Please upload at least four images",
+            validate: {
+              minFourImages: (files) =>
+                (files && files.length >= 4) ||
+                "A minimum of 4 images is required",
+            },
+          })}
+          error={!!errors.photos}
+          helperText={errors.photos?.message}
+        />
+
         <Box>
           {loading === "IN_PROGRESS" ? (
             <CircularProgress />

@@ -23,16 +23,14 @@ export interface RegisterData {
   email: string;
   password: string;
   avatar?: string;
-  photos?: any[];
+  photos?: any;
 }
 
 export const register = createAsyncThunk(
   "auth/register",
-  async (register: RegisterData, { rejectWithValue }) => {
+  async (register: RegisterData | FormData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_URL}/api/register`, {
-        ...register,
-      });
+      const response = await axios.post(`${API_URL}/api/register`, register);
       const data: Client = response.data;
       return data;
     } catch (err: any) {

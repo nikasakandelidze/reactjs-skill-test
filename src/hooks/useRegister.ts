@@ -13,7 +13,7 @@ export interface RegisterHook {
   data: Client | null;
   loading: ProgressState;
   error: string | null;
-  handleRegister: (registerData: RegisterData) => Promise<void>;
+  handleRegister: (registerData: RegisterData | FormData) => Promise<void>;
   resetRegister: () => void;
 }
 
@@ -23,7 +23,7 @@ export const useRegister = (): RegisterHook => {
     (state) => state.register,
   );
 
-  const handleRegister = async (registerData: RegisterData) => {
+  const handleRegister = async (registerData: RegisterData | FormData) => {
     dispatch(register(registerData) as any);
   };
 

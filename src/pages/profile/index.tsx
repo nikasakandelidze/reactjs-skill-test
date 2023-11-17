@@ -1,5 +1,6 @@
 import { Avatar, Grid, Typography } from "@mui/material";
 import { useUserInfo } from "../../hooks/useUserInfo";
+import Carousel from "../../components/Carousel";
 
 export const Profile = () => {
   const { data } = useUserInfo();
@@ -20,6 +21,9 @@ export const Profile = () => {
         />
         <Typography variant="h4">{data?.firstName}</Typography>
         <Typography variant="h4">{data?.email}</Typography>
+      </Grid>
+      <Grid item xs={12} display="flex" justifyContent="center">
+        {data?.photos && <Carousel images={data?.photos.map((e) => e.url)} />}
       </Grid>
     </Grid>
   );
