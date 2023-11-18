@@ -1,8 +1,9 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AuthState, Client } from "../../model";
-import { ProgressState } from "../../utils/types";
-import axios from "axios";
+import { HttpResponseError, ProgressState } from "../../utils/types";
+import axios, { AxiosError } from "axios";
 import { API_URL } from "../../utils/constants";
+import { getSingleErrorMessage } from "../../utils";
 
 export interface UserState {
   data: Client | null;
@@ -28,7 +29,12 @@ export const getUserInfo = createAsyncThunk(
       return data;
     } catch (err) {
       console.log(err);
-      //   rejectWithValue()
+      const error = err as AxiosError<HttpResponseError>;
+      const message = getSingleErrorMessage(
+        error.response?.data,
+        "Failed to get user's profile information",
+      );
+      return rejectWithValue({ message });
     }
   },
 );
@@ -36,7 +42,13 @@ export const getUserInfo = createAsyncThunk(
 export const userSlice = createSlice({
   name: "user",
   initialState,
-  reducers: {},
+  reducers: {
+    resetUserState: (state: UserState) => {
+      state.loading = "IDLE";
+      state.data = null;
+      state.error = null;
+    },
+  },
   extraReducers: (builder: any) => {
     builder
       .addCase(getUserInfo.pending, (state: UserState) => {
@@ -55,5 +67,7 @@ export const userSlice = createSlice({
       });
   },
 });
+
+export const { resetUserState } = userSlice.actions;
 
 export default userSlice.reducer;

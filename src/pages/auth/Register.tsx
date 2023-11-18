@@ -11,7 +11,6 @@ import { useNavigate } from "react-router-dom";
 import { useRegister } from "../../hooks/useRegister";
 import { useEffect } from "react";
 import { useSnackbar } from "notistack";
-import { RegisterData } from "../../store/user/registerSlice";
 
 interface IFormInput {
   firstName: string;
