@@ -1,7 +1,7 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AuthState } from "../../model";
 import { HttpResponseError, ProgressState } from "../../utils/types";
-import { API_URL, USER_TOKEN } from "../../utils/constants";
+import { API_URL, USER_TOKEN_KEY } from "../../utils/constants";
 import axios, { AxiosError } from "axios";
 import { getSingleErrorMessage } from "../../utils";
 
@@ -11,8 +11,8 @@ export interface LoginState {
   error: string | null;
 }
 
-const INIT_TOKEN = localStorage.getItem(USER_TOKEN)
-  ? localStorage.getItem(USER_TOKEN)
+const INIT_TOKEN = localStorage.getItem(USER_TOKEN_KEY)
+  ? localStorage.getItem(USER_TOKEN_KEY)
   : null;
 
 const initialState: LoginState = {
@@ -32,7 +32,7 @@ export const login = createAsyncThunk(
     try {
       const response = await axios.post(`${API_URL}/api/login`, { ...login });
       const data: AuthState = response.data;
-      localStorage.setItem(USER_TOKEN, data.token);
+      localStorage.setItem(USER_TOKEN_KEY, data.token);
       return data;
     } catch (err: any) {
       console.log(err);
