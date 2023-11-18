@@ -2,7 +2,7 @@ import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AuthState, Client } from "../../model";
 import { HttpResponseError, ProgressState } from "../../utils/types";
 import axios, { AxiosError } from "axios";
-import { API_URL } from "../../utils/constants";
+import { API_URL, USER_TOKEN } from "../../utils/constants";
 import { getSingleErrorMessage } from "../../utils";
 
 export interface UserState {
@@ -47,6 +47,7 @@ export const userSlice = createSlice({
       state.loading = "IDLE";
       state.data = null;
       state.error = null;
+      localStorage.removeItem(USER_TOKEN);
     },
   },
   extraReducers: (builder: any) => {

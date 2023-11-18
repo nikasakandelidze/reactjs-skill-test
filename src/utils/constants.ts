@@ -5,3 +5,5 @@ export const PROTOCOL = "http";
 export const PORT = "3001";
 
 export const API_URL = `${PROTOCOL}://${HOST}:${PORT}`;
+
+export const USER_TOKEN = "REACT_SKILL_TEST_TOKEN";
