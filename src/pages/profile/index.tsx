@@ -25,6 +25,11 @@ export const Profile = () => {
     }
   }, [loading, resetUser, enqueueSnackbar, error]);
 
+  const signOut = () => {
+    resetUser();
+    resetLogin();
+  };
+
   return (
     <Grid container rowSpacing={3}>
       <Grid
@@ -55,8 +60,7 @@ export const Profile = () => {
           onClick={() => {
             // We can implement below mechanism in a better way, but it's still ok
             navigate("/");
-            resetUser();
-            resetLogin();
+            signOut();
           }}
         >
           Sign out

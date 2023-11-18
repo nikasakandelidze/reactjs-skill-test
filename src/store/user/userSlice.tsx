@@ -3,7 +3,7 @@ import { AuthState, Client } from "../../model";
 import { HttpResponseError, ProgressState } from "../../utils/types";
 import axios, { AxiosError } from "axios";
 import { API_URL, USER_TOKEN } from "../../utils/constants";
-import { getSingleErrorMessage } from "../../utils";
+import { getSingleErrorMessage, handleUnauthorizedError } from "../../utils";
 
 export interface UserState {
   data: Client | null;
@@ -19,13 +19,12 @@ const initialState: UserState = {
 
 export const getUserInfo = createAsyncThunk(
   "user/me",
-  async (auth: AuthState, { rejectWithValue }) => {
+  async (auth: AuthState, { rejectWithValue, dispatch }) => {
     try {
       const response = await axios.get(`${API_URL}/api/users/me`, {
         headers: { Authorization: `Bearer ${auth.token}` },
       });
       const data: Client = response.data;
-      console.log(data);
       return data;
     } catch (err) {
       console.log(err);
@@ -34,6 +33,7 @@ export const getUserInfo = createAsyncThunk(
         error.response?.data,
         "Failed to get user's profile information",
       );
+      handleUnauthorizedError(error, dispatch);
       return rejectWithValue({ message });
     }
   },
@@ -63,6 +63,7 @@ export const userSlice = createSlice({
         },
       )
       .addCase(getUserInfo.rejected, (state: UserState, action: any) => {
+        state.data = null;
         state.loading = "FAILED";
         state.error = action.error.message || "Failed to fetch user data";
       });
