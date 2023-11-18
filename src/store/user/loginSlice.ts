@@ -35,6 +35,7 @@ export const login = createAsyncThunk(
       localStorage.setItem(USER_TOKEN, data.token);
       return data;
     } catch (err: any) {
+      console.log(err);
       const error = err as AxiosError<HttpResponseError>;
       const message = getSingleErrorMessage(
         error.response?.data,
